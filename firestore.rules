@@ -1,0 +1,120 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        request.auth.token.email == 'its.sanjidaislam@gmail.com' &&
+        request.auth.token.email_verified == true;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidMailbox(data) {
+      return data.keys().hasAll(['id', 'address', 'username', 'domain', 'createdAt', 'expiresAt', 'status']) &&
+        data.keys().hasOnly(['id', 'address', 'username', 'domain', 'createdAt', 'expiresAt', 'status', 'messageCount']) &&
+        data.id is string && data.id.size() <= 64 &&
+        data.address is string && data.address.size() <= 150 &&
+        data.username is string && data.username.size() <= 80 &&
+        data.domain is string && data.domain.size() <= 100 &&
+        data.status in ['active', 'expired', 'deleted', 'blocked'];
+    }
+
+    function isValidMessage(data) {
+      return data.keys().hasAll(['id', 'mailboxId', 'recipient', 'from', 'subject', 'createdAt', 'isRead']) &&
+        data.keys().hasOnly(['id', 'mailboxId', 'recipient', 'from', 'senderEmail', 'subject', 'textBody', 'htmlBody', 'rawHeaders', 'otpCode', 'otpType', 'hasAttachments', 'isRead', 'createdAt', 'sizeBytes']) &&
+        data.id is string && data.id.size() <= 64 &&
+        data.mailboxId is string && data.mailboxId.size() <= 64 &&
+        data.recipient is string && data.recipient.size() <= 150 &&
+        data.from is string && data.from.size() <= 200 &&
+        data.subject is string && data.subject.size() <= 500 &&
+        data.isRead is bool;
+    }
+
+    function isValidAbuseReport(data) {
+      return data.keys().hasAll(['id', 'targetAddress', 'reason', 'details', 'status', 'createdAt']) &&
+        data.keys().hasOnly(['id', 'targetAddress', 'reporterEmail', 'reason', 'details', 'status', 'createdAt']) &&
+        data.id is string && data.id.size() <= 64 &&
+        data.targetAddress is string && data.targetAddress.size() <= 150 &&
+        data.reason in ['spam', 'phishing', 'harassment', 'fraud', 'other'] &&
+        data.details is string && data.details.size() <= 5000 &&
+        data.status in ['pending', 'investigating', 'resolved', 'dismissed'];
+    }
+
+    // Mailboxes collection
+    match /mailboxes/{mailboxId} {
+      allow get: if isValidId(mailboxId);
+      allow list: if isAdmin();
+      allow create: if isValidId(mailboxId) && isValidMailbox(incoming()) && incoming().id == mailboxId;
+      allow update: if isValidId(mailboxId) && (
+        isAdmin() ||
+        (isValidMailbox(incoming()) && incoming().id == existing().id &&
+         incoming().diff(existing()).affectedKeys().hasOnly(['status', 'expiresAt', 'messageCount']))
+      );
+      allow delete: if isValidId(mailboxId);
+
+      // Messages subcollection
+      match /messages/{messageId} {
+        allow get: if isValidId(mailboxId) && isValidId(messageId);
+        allow list: if isValidId(mailboxId);
+        allow create: if isValidId(mailboxId) && isValidId(messageId) && isValidMessage(incoming()) && incoming().mailboxId == mailboxId;
+        allow update: if isValidId(mailboxId) && isValidId(messageId) && (
+          isAdmin() ||
+          (isValidMessage(incoming()) && incoming().mailboxId == mailboxId &&
+           incoming().diff(existing()).affectedKeys().hasOnly(['isRead']))
+        );
+        allow delete: if isValidId(mailboxId) && isValidId(messageId);
+      }
+    }
+
+    // Domains collection
+    match /domains/{domainId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Abuse Reports
+    match /abuse_reports/{reportId} {
+      allow create: if isValidId(reportId) && isValidAbuseReport(incoming());
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Blocked IPs
+    match /blocked_ips/{ip} {
+      allow read, write: if isAdmin();
+    }
+
+    // System Settings
+    match /system_settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Security logs
+    match /security_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isValidId(logId);
+      allow update, delete: if false;
+    }
+  }
+}

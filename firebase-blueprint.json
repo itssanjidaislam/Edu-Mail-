@@ -1,0 +1,308 @@
+{
+  "entities": {
+    "Mailbox": {
+      "title": "Mailbox",
+      "description": "A temporary disposable mailbox entity legally mapped to an operator domain.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique mailbox ID token (cryptographically random)"
+        },
+        "address": {
+          "type": "string",
+          "description": "Full email address (e.g. user_x9a8@edumail.dev)"
+        },
+        "username": {
+          "type": "string",
+          "description": "Local mailbox username"
+        },
+        "domain": {
+          "type": "string",
+          "description": "Configured domain"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO timestamp of mailbox creation"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO timestamp of mailbox expiration"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "expired", "deleted", "blocked"],
+          "description": "Current status of the mailbox"
+        },
+        "messageCount": {
+          "type": "number",
+          "description": "Total number of messages received"
+        }
+      },
+      "required": ["id", "address", "username", "domain", "createdAt", "expiresAt", "status"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "An incoming email message received by a temporary mailbox.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique message ID"
+        },
+        "mailboxId": {
+          "type": "string",
+          "description": "Mailbox ID reference"
+        },
+        "recipient": {
+          "type": "string",
+          "description": "Recipient address"
+        },
+        "from": {
+          "type": "string",
+          "description": "Sender email and display name"
+        },
+        "senderEmail": {
+          "type": "string",
+          "description": "Sender parsed email"
+        },
+        "subject": {
+          "type": "string",
+          "description": "Email subject line"
+        },
+        "textBody": {
+          "type": "string",
+          "description": "Plain text content"
+        },
+        "htmlBody": {
+          "type": "string",
+          "description": "Sanitized HTML email content"
+        },
+        "rawHeaders": {
+          "type": "string",
+          "description": "Parsed raw headers (DKIM, SPF, Received)"
+        },
+        "otpCode": {
+          "type": "string",
+          "description": "Auto-detected verification OTP code if detected"
+        },
+        "otpType": {
+          "type": "string",
+          "description": "Format or length of detected OTP (e.g. 6-digit)"
+        },
+        "hasAttachments": {
+          "type": "boolean",
+          "description": "Indicates if attachments are present"
+        },
+        "isRead": {
+          "type": "boolean",
+          "description": "Read status"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Message receipt timestamp"
+        },
+        "sizeBytes": {
+          "type": "number",
+          "description": "Size in bytes"
+        }
+      },
+      "required": ["id", "mailboxId", "recipient", "from", "subject", "createdAt", "isRead"]
+    },
+    "Domain": {
+      "title": "Domain",
+      "description": "Operator controlled domain configured for MX reception.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Domain name (e.g. edumail.dev)"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Whether domain accepts new mailboxes"
+        },
+        "priority": {
+          "type": "number",
+          "description": "Selection priority weight"
+        },
+        "mxConfigured": {
+          "type": "boolean",
+          "description": "MX record verification status"
+        },
+        "spfConfigured": {
+          "type": "boolean",
+          "description": "SPF record verification status"
+        },
+        "dkimConfigured": {
+          "type": "boolean",
+          "description": "DKIM verification status"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Config timestamp"
+        }
+      },
+      "required": ["id", "isActive", "priority"]
+    },
+    "AbuseReport": {
+      "title": "AbuseReport",
+      "description": "User or external abuse and spam report submission.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Report ID"
+        },
+        "targetAddress": {
+          "type": "string",
+          "description": "Reported mailbox or message address"
+        },
+        "reporterEmail": {
+          "type": "string",
+          "description": "Reporter contact email"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Reason category: spam, phishing, harassment, other"
+        },
+        "details": {
+          "type": "string",
+          "description": "Full details provided by reporter"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "investigating", "resolved", "dismissed"],
+          "description": "Report handling status"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Submission timestamp"
+        }
+      },
+      "required": ["id", "targetAddress", "reason", "details", "status", "createdAt"]
+    },
+    "BlockedIp": {
+      "title": "BlockedIp",
+      "description": "Blocked IP addresses for rate limiting or abuse mitigation.",
+      "type": "object",
+      "properties": {
+        "ip": {
+          "type": "string",
+          "description": "Client IP address"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Ban reason"
+        },
+        "blockedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when blocked"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Optional expiration of temporary ban"
+        }
+      },
+      "required": ["ip", "reason", "blockedAt"]
+    },
+    "SystemSettings": {
+      "title": "SystemSettings",
+      "description": "Global operational settings for Edu Mail.",
+      "type": "object",
+      "properties": {
+        "mailboxLifetimeMinutes": {
+          "type": "number",
+          "description": "Default mailbox lifetime in minutes"
+        },
+        "maxMessagesPerMailbox": {
+          "type": "number",
+          "description": "Cap on messages per temporary mailbox"
+        },
+        "maxMessageSizeBytes": {
+          "type": "number",
+          "description": "Maximum allowed raw email size in bytes"
+        },
+        "rateLimitPerHour": {
+          "type": "number",
+          "description": "Max mailbox creations per IP per hour"
+        },
+        "allowHtmlEmail": {
+          "type": "boolean",
+          "description": "Allow sanitized HTML display"
+        },
+        "autoPurgeExpired": {
+          "type": "boolean",
+          "description": "Automatically purge expired mailboxes"
+        }
+      },
+      "required": ["mailboxLifetimeMinutes", "maxMessagesPerMailbox", "maxMessageSizeBytes", "rateLimitPerHour"]
+    },
+    "SecurityLog": {
+      "title": "SecurityLog",
+      "description": "Audit and security events log.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Log entry ID"
+        },
+        "action": {
+          "type": "string",
+          "description": "Event action name"
+        },
+        "ip": {
+          "type": "string",
+          "description": "Originating IP"
+        },
+        "details": {
+          "type": "string",
+          "description": "Event details"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Event timestamp"
+        }
+      },
+      "required": ["id", "action", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/mailboxes/{mailboxId}": {
+      "schema": "Mailbox",
+      "description": "Temporary mailboxes generated by users"
+    },
+    "/mailboxes/{mailboxId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Incoming parsed emails for a specific mailbox"
+    },
+    "/domains/{domainId}": {
+      "schema": "Domain",
+      "description": "Operator managed email domains"
+    },
+    "/abuse_reports/{reportId}": {
+      "schema": "AbuseReport",
+      "description": "Submitted abuse and violation reports"
+    },
+    "/blocked_ips/{ip}": {
+      "schema": "BlockedIp",
+      "description": "IP blocklist"
+    },
+    "/system_settings/global": {
+      "schema": "SystemSettings",
+      "description": "Global system configurations"
+    },
+    "/security_logs/{logId}": {
+      "schema": "SecurityLog",
+      "description": "Security audit log entries"
+    }
+  }
+}

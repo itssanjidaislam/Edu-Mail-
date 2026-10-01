@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edu Mail — Free Temporary Email & Secure Student Utilities</title>
+    <meta name="description" content="Generate instant disposable temporary email addresses. Receive real incoming emails, auto-detect verification OTP codes, and use our client-side secure password generator." />
+    <meta name="keywords" content="temporary email, disposable email, temp mail, throwaway email, anonymous email, otp verification, password generator, edu mail" />
+    <meta name="author" content="Edu Mail Infrastructure Team" />
+    <meta name="theme-color" content="#4f46e5" />
+    <link rel="canonical" href="https://edumail.dev" />
+
+    <!-- Open Graph / Facebook / LinkedIn / WhatsApp / Telegram -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Edu Mail" />
+    <meta property="og:url" content="https://edumail.dev" />
+    <meta property="og:title" content="Edu Mail — Free Temporary Email & Secure Student Utilities" />
+    <meta property="og:description" content="Generate instant disposable temporary email addresses. Real-time inbox, auto OTP detection, and zero-knowledge password generator." />
+    <meta property="og:image" content="/og-preview.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@EduMailApp" />
+    <meta name="twitter:title" content="Edu Mail — Free Temporary Email & Secure Student Utilities" />
+    <meta name="twitter:description" content="Instant disposable email with real-time incoming delivery and automated OTP detection." />
+    <meta name="twitter:image" content="/og-preview.png" />
+
+    <!-- Favicon & PWA -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M22 10v6M2 10l10-5 10 5-10 5z'/><path d='M6 12v5c3 3 9 3 12 0v-5'/></svg>" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Schema.org JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://edumail.dev/#webapp",
+          "name": "Edu Mail",
+          "url": "https://edumail.dev",
+          "applicationCategory": "UtilitiesApplication",
+          "operatingSystem": "All",
+          "description": "Real temporary disposable email platform with live message reception, verification OTP detection, and secure password generator.",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://edumail.dev/#organization",
+          "name": "Edu Mail",
+          "url": "https://edumail.dev",
+          "logo": "https://edumail.dev/logo.png"
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://edumail.dev/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What is Edu Mail?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Edu Mail is a legitimate temporary and disposable email service operating on legally owned and configured domains. It allows users to protect their primary inbox from spam while receiving account verification emails and OTP codes."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is Edu Mail affiliated with any educational institutions?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. Edu Mail is an independent utility platform designed for students and developers. It does not impersonate colleges, universities, or governmental bodies."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How long do temporary mailboxes last?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Temporary mailboxes last for a configurable duration (default 10 minutes) and can be refreshed or manually terminated at any time. All associated messages are automatically purged on expiration."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+  </head>
+  <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

@@ -1,0 +1,7 @@
+{
+  "name": "Edu Mail",
+  "description": "Production-ready temporary email platform featuring disposable inboxes, real-time message delivery, automated verification OTP detection, secure password generator, and comprehensive email server infrastructure.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
