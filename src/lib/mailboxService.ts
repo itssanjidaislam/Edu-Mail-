@@ -131,7 +131,6 @@ export async function createTemporaryMailbox(
   if (!username || username.length < 3) {
     username = generateRandomUsername();
   } else {
-    // Truncate if too long
     username = username.substring(0, 64);
   }
 
@@ -153,11 +152,14 @@ export async function createTemporaryMailbox(
 
   const path = `mailboxes/${mailboxId}`;
   try {
-    await setDoc(doc(db, 'mailboxes', mailboxId), mailbox);
     localStorage.setItem(ACTIVE_MAILBOX_STORAGE_KEY, mailboxId);
+    localStorage.setItem(`edumail_mailbox_cache_${mailboxId}`, JSON.stringify(mailbox));
+    await setDoc(doc(db, 'mailboxes', mailboxId), mailbox);
     return mailbox;
   } catch (error) {
-    handleFirestoreError(error, OperationType.CREATE, path);
+    console.warn('Firestore offline or unavailable, operating in local fallback mode:', error);
+    // Return successfully via local fallback cache
+    return mailbox;
   }
 }
 
@@ -168,14 +170,28 @@ export async function getStoredActiveMailbox(): Promise<Mailbox | null> {
   const storedId = localStorage.getItem(ACTIVE_MAILBOX_STORAGE_KEY);
   if (!storedId) return null;
 
+  // Check local cache first for instant load
+  const cachedStr = localStorage.getItem(`edumail_mailbox_cache_${storedId}`);
+  let cachedMailbox: Mailbox | null = null;
+  if (cachedStr) {
+    try {
+      cachedMailbox = JSON.parse(cachedStr);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   try {
     const snap = await getDoc(doc(db, 'mailboxes', storedId));
     if (!snap.exists()) {
+      if (cachedMailbox) return cachedMailbox;
       localStorage.removeItem(ACTIVE_MAILBOX_STORAGE_KEY);
       return null;
     }
     const data = snap.data() as Mailbox;
-    // Check if expired
+    // Update local cache
+    localStorage.setItem(`edumail_mailbox_cache_${storedId}`, JSON.stringify(data));
+    
     if (new Date(data.expiresAt).getTime() <= Date.now() || data.status !== 'active') {
       return {
         ...data,
@@ -184,7 +200,8 @@ export async function getStoredActiveMailbox(): Promise<Mailbox | null> {
     }
     return data;
   } catch (error) {
-    console.error('Failed to restore active mailbox:', error);
+    console.warn('Failed to fetch from Firestore, falling back to local cache:', error);
+    if (cachedMailbox) return cachedMailbox;
     return null;
   }
 }
